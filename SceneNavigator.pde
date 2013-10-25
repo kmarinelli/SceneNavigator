@@ -27,16 +27,19 @@ float W;    // Width of display window projected onto the viewing plane in U coo
 float H;    // Height of display winidow projected onto the viewing plane in V coordinates;
 
 boolean drawEyeMode=false;
+float rotateEye=1.0;
+boolean DRAWSCENE=true;
+PFont f;
 
 void setup() 
 {
   size(800, 800, OPENGL);
   
-  atX=1.0;
+  atX=0.0;
   atY=0.0;
   atZ=0.0;
   
-  eyeX=atX+R;
+  eyeX=atX-R;
   eyeZ=atZ;
   eyeY=3.0;
  
@@ -49,12 +52,12 @@ void setup()
   upY=-1.0;
   upZ=0.0;
   
-  frameRate(20);
+  frameRate(15);
   noStroke();
   ASPECTRATIO=(float)width/(float)height;
   println(ASPECTRATIO);
   perspective(FOV,ASPECTRATIO,0.1,1000);  // Set the perspective transform. The default clips the znear plane too close.
-
+  f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
 }
 
 void draw() 
@@ -66,7 +69,7 @@ void draw()
    eyeZ=sin(eyeTheta)*R+atZ;
    
    drawEyeMode=false;            // Default is to not draw a spehere at the eye with a vector to "at".
-   
+   rotateEye=0.0;
    camera(eyeX,eyeY,eyeZ,atX,atY,atZ,upX,upY,upZ); // If no 'v' key is pressed, look at the scene from the camera view.
    if (keyPressed) 
    {
@@ -75,11 +78,27 @@ void draw()
          camera(20.0,20.0,20.0,atX,atY,atZ,upX,upY,upZ);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
          drawEyeMode=true;
       }  
+      if( key=='r')
+      {
+        rotateEye=1.0;
+      }
+      if( key=='R')
+      {
+        rotateEye= -1.0;
+      }
+      if( key=='d')
+      {
+        DRAWSCENE= false;
+      }
+      if( key=='D')
+      {
+         DRAWSCENE=true;
+      }
    }
    ComputeUV();
    ComputeWindowProjection();
 
-   drawScene();
+   if(DRAWSCENE)drawScene();
    
    drawSceneUnitAxes();  // Draw the unit axes at the "at" location.
    DrawWindowProjection();      // Draw the window projected onto the viewing plane
@@ -89,8 +108,12 @@ void draw()
 
   if( drawEyeMode) drawEye();   // If looking from the side of the camera, draw the eye.
 
-   eyeTheta= (eyeTheta+PI/36.0);  // update the camera location.
-   if( eyeTheta>TWO_PI) eyeTheta=0.0;
+   if(rotateEye!=0.0)
+   {
+      eyeTheta= (eyeTheta+PI/36.0*rotateEye);  // update the camera location.
+      if( eyeTheta>TWO_PI) eyeTheta=0.0;
+      if( eyeTheta<0) eyeTheta=TWO_PI;
+   }
 }
 
 void ComputeWindowProjection()
@@ -126,26 +149,29 @@ void DrawWindowProjection()
   VTemp= new PVector(V.x,V.y,V.z);
   VTemp.mult(H);
   
-  PULeft=new PVector(atX-U.x*W*scale+V.x*H*scale,
-                     atY-U.y*W*scale+V.y*H*scale,
-                     atZ-U.z*W*scale+V.z*H*scale);
+  PULeft=new PVector(atX+U.x*W*scale+V.x*H*scale,
+                     atY+U.y*W*scale+V.y*H*scale,
+                     atZ+U.z*W*scale+V.z*H*scale);
   
-  PURight=new PVector(atX+U.x*W*scale+V.x*H*scale,
-                      atY+U.y*W*scale+V.y*H*scale,
-                      atZ+U.z*W*scale+V.z*H*scale);
+  PURight=new PVector(atX-U.x*W*scale+V.x*H*scale,
+                      atY-U.y*W*scale+V.y*H*scale,
+                      atZ-U.z*W*scale+V.z*H*scale);
 
-  PLLeft=new PVector(atX-U.x*W*scale-V.x*H*scale,
-                     atY-U.y*W*scale-V.y*H*scale,
-                     atZ-U.z*W*scale-V.z*H*scale);
-  
-  PLRight=new PVector(atX+U.x*W*scale-V.x*H*scale,
+  PLLeft=new PVector(atX+U.x*W*scale-V.x*H*scale,
                      atY+U.y*W*scale-V.y*H*scale,
                      atZ+U.z*W*scale-V.z*H*scale);
   
+  PLRight=new PVector(atX-U.x*W*scale-V.x*H*scale,
+                      atY-U.y*W*scale-V.y*H*scale,
+                      atZ-U.z*W*scale-V.z*H*scale);
+  
   stroke(255,255,128);
   line(PULeft.x,PULeft.y,PULeft.z, PURight.x,PURight.y,PURight.z);
+  stroke(255,128,128);
   line(PULeft.x,PULeft.y,PULeft.z,PLLeft.x,PLLeft.y,PLLeft.z);
+  stroke(128,255,128);
   line(PLLeft.x,PLLeft.y,PLLeft.z,PLRight.x,PLRight.y,PLRight.z);
+  stroke(0,0,0);
   line(PURight.x,PURight.y,PURight.z,PLRight.x,PLRight.y,PLRight.z);
 }
 
@@ -157,7 +183,7 @@ void drawScene()
    noStroke();
    
    pushMatrix();
-      translate(3,0,0);
+      translate(0,0,0);
       sphere(0.5);
    popMatrix();
 
@@ -167,10 +193,34 @@ void drawSceneUnitAxes()
 {
    stroke(255,0,0);
    line(atX-1, atY-0, atZ-0, atX+1, atY+0, atZ+0);
+   line(atX+1-0.25,atY+0.25,atZ,atX+1,atY+0,atZ+0);
+   line(atX+1-0.25,atY-0.25,atZ,atX+1,atY+0,atZ+0);
    stroke(0,255,0);
    line(atX-0, atY-1, atZ-0, atX+0, atY+1, atZ+0);
+   line(atX-0.25,atY+1-0.25,atZ,atX+0,atY+1,atZ+0);
+   line(atX+0.25,atY+1-0.25,atZ,atX+0,atY+1,atZ+0);
    stroke(0,0,255);
    line(atX-0, atY-0, atZ-1, atX+0, atY+0, atZ+1);
+   line(atX+0, atY-0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
+   line(atX+0, atY+0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
+   fill(0,0,0);
+   pushMatrix();
+      translate(atX+1.0,atY-0.15,atZ+0.0);
+      scale(0.03,-0.03,0.03);
+      text("X",0.0,0.0,0.0);
+   popMatrix();
+   pushMatrix();
+      translate(atX-0.13,atY+1.0,atZ+0.0);
+      scale(0.03,-0.03,0.03);
+      text("Y",0,0,0.0);
+   popMatrix();
+   pushMatrix();
+      translate(atX+0,atY-0.15,atZ+1.0);
+      rotate(PI/2,0.0,-1.0,0.0);
+      scale(0.03,-0.03,0.03);
+      text("Z",0.0,0.0,0.0);
+   popMatrix();
+
 }
 
 void drawEye()
