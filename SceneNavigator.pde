@@ -2,6 +2,7 @@
 // Kevin Marinelli
 // This tests the calculations for changing the position of the camera view in a scene.
 // The vew change for the moment is a simple rotation around the Y axis.
+// 11/04/2013
 //
 // Pressing the "v" key changes the scene view to the side of the camera and draws the camera location in the scene.
 // The input focus must be set to the window for the 'v' key to work.
