@@ -10,39 +10,71 @@
 // NOTE: This program works in both Java and JavaScript environments for Processing2.
 //
 
+//import java.awt.AWTException;
+//import java.awt.Robot;
+
 float eyeX, eyeY,eyeZ;  // location of the eye (camera).
-float atX,atY,atZ;      // location on the viewing plane that the eye is looking at.
+float atX,atY,atZ;      // location if the viewpoint, the center of the viewing plane that the eye is looking at.
 float upX,upY,upZ;      // unit direction vector to call up in the 3D scene.
+float dx,dy,dz;         // Unit direction vector from the eye to the viewpoint.
+float dt=0.1;
 
 float R=10.0;    // Radius of rotation for the eye (camera).
+float RMIN=0.01;
+float RMAX=100.0;
 float eyeD;      // Distance from the eye to the viewing plane.
 float eyeTheta;
 
 float FOV=45.0; // Perspecive projection field of view.
-float ASPECTRATIO;
+float ASPECTRATIO; // Aspect ration  of the display window.
 
-PVector U;  // Unit U vector of the viewing plane in world coordinates.
+PVector U; // Unit U vector of the viewing plane in world coordinates.
+float uX,uY,uZ; // Separate ordinated of U.
+
 PVector V;  // Unit V vector of the viewing plane in world coordinates.
+float vX,vY,vZ; // Separate ordinated of V.
+
 float W;    // Width of display window projected onto the viewing plane in U coordinate.
 float H;    // Height of display winidow projected onto the viewing plane in V coordinates;
 
-boolean drawEyeMode=false;
-float rotateEye=1.0;
-boolean DRAWSCENE=true;
-PFont f;
 
+
+float rotateEye=1.0;
+boolean DRAWSCENE=true;     // True for drawing the scene.
+boolean DRAWEYEMODE=false;  // True if drawing is offset from the eye.
+PFont f;
+ 
+// Robot is not available in JavaScript mode! Need to find an alternative!
+//Robot robot;    // Robot class is used for positioning the mouse cursor. (may be useful when changing to offset view to reposition the mouse pointer to keep
+                // the same UV coordinate position, instead of the mouse position having a new UV coordinate after the view change.
+ 
 void setup() 
 {
-  size(800, 800, OPENGL);
+  float d;
   
+  size(800, 800, OPENGL);
+ 
+ /*  Does not work in JavaScript mode- need to find an alternatice technique.
+  try 
+  { 
+    robot = new Robot();
+  } 
+  catch (AWTException e) 
+  {
+    e.printStackTrace();
+  }
+  robot.mouseMove(width/2, height/2);      // Initialize the mouse position to the center of the screen.
+*/
+  noCursor();                              // Turn off the normal mouse pointer.
+   
   atX=0.0;
   atY=0.0;
   atZ=0.0;
   
   eyeX=atX-R;
   eyeZ=atZ;
-  eyeY=3.0;
- 
+  eyeY=0.0;
+  
   eyeD=sqrt((eyeX-atX)*(eyeX-atX)+(eyeY-atY)*(eyeY-atY)+(eyeZ-atZ)*(eyeZ-atZ) );
   eyeTheta=0.0;
   
@@ -52,49 +84,44 @@ void setup()
   upY=-1.0;
   upZ=0.0;
   
-  frameRate(15);
+  frameRate(30);
   noStroke();
   ASPECTRATIO=(float)width/(float)height;
+  
   println(ASPECTRATIO);
+  
   perspective(FOV,ASPECTRATIO,0.1,1000);  // Set the perspective transform. The default clips the znear plane too close.
-  f = createFont("Arial",16,true); // Arial, 16 point, anti-aliasing on
+  f = createFont("Arial",16,true);        // Arial, 16 point, anti-aliasing on
 }
 
 void draw() 
 {
+   float d;
    background(128,128,255,255);   // Draw a non-black background, light blue
    
-  
+   // Note! This code is in error for arbitrary location. It should be
+   // a rotation around the V axis, which affects all of eyeX,eyeY,eyeZ.
+   //
    eyeX=cos(eyeTheta)*R+atX;  // Compute the eye rotation around the Y axis.
    eyeZ=sin(eyeTheta)*R+atZ;
    
-   drawEyeMode=false;            // Default is to not draw a spehere at the eye with a vector to "at".
    rotateEye=0.0;
    camera(eyeX,eyeY,eyeZ,atX,atY,atZ,upX,upY,upZ); // If no 'v' key is pressed, look at the scene from the camera view.
-   if (keyPressed) 
-   {
-      if (key =='v')
-      {
-         camera(20.0,20.0,20.0,atX,atY,atZ,upX,upY,upZ);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
-         drawEyeMode=true;
-      }  
-      if( key=='r')
-      {
-        rotateEye=1.0;
-      }
-      if( key=='R')
-      {
-        rotateEye= -1.0;
-      }
-      if( key=='d')
-      {
-        DRAWSCENE= false;
-      }
-      if( key=='D')
-      {
-         DRAWSCENE=true;
-      }
-   }
+
+   dx=atX-eyeX;
+   dy=atY-eyeY;
+   dz=atZ-eyeZ;
+   d=sqrt(dx*dx+dy*dy+dz*dz);
+   if( d == 0) d=1.0; // Note d should never be allowed to be zero under any circumstances! This is a failsafe!
+  
+   dx=dx/d;
+   dy=dy/d;
+   dz=dz/d;
+  
+   ProcessUserInput();
+
+   if( DRAWEYEMODE)  camera(atX-d*dx*3+U.x*5.0+V.x*2.0, atY-d*dy*3+U.y*5.0+V.y*2.0,atZ-d*dz*3+U.z*5.0+V.z*2.0,atX,atY,atZ,upX,upY,upZ);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
+
    ComputeUV();
    ComputeWindowProjection();
 
@@ -106,21 +133,36 @@ void draw()
    drawPlane();          // Draw unit grid lines in UV coordinates on the viewing plane.
   
 
-  if( drawEyeMode) drawEye();   // If looking from the side of the camera, draw the eye.
+  if( DRAWEYEMODE) drawEye();   // If looking from the side of the camera, draw the eye.
 
+
+//
+//  Note! This is NOT accurate for arbitrary 3D rotation of the eye yet!!
+//  It should be a rotation in the (U,Lookat) plane
    if(rotateEye!=0.0)
    {
       eyeTheta= (eyeTheta+PI/36.0*rotateEye);  // update the camera location.
       if( eyeTheta>TWO_PI) eyeTheta=0.0;
       if( eyeTheta<0) eyeTheta=TWO_PI;
    }
+   resetMatrix();
+   fill(0, 102, 153);
+   textSize(32);
+   text("word", 10, 30); 
 }
 
+// Handle User interface input.
+void ProcessUserInput()
+{
+   ProcessKeyInput();
+   ProcessMouseInput();
+}
+
+// Compute the range of U,V coordinates in the display window.
 void ComputeWindowProjection()
 {
-   
-  W=tan(FOV/2)*eyeD*ASPECTRATIO;
-  H=W/ASPECTRATIO;
+  W=tan(FOV/2)*eyeD*ASPECTRATIO; // +/- U extent
+  H=W/ASPECTRATIO;               // +/- V extent
 }
 
 /*
@@ -141,6 +183,8 @@ void DrawWindowProjection()
   PVector VTemp;
   float scale=1.0;  // scaling to be able  to observe the projected window during testing.
  
+  PVector mx;
+  
    stroke(255,255,128);
   
   UTemp= new PVector(U.x,U.y,U.z);
@@ -175,6 +219,7 @@ void DrawWindowProjection()
   line(PURight.x,PURight.y,PURight.z,PLRight.x,PLRight.y,PLRight.z);
 }
 
+// Draw the geometry of the scene. (fixed geopmetry of one vertex for now).
 void drawScene()
 {
    // Draw a simple sphere in the scene.
@@ -184,7 +229,7 @@ void drawScene()
    
    pushMatrix();
       translate(0,0,0);
-      sphere(0.5);
+      sphere(0.1);
    popMatrix();
 
 }
@@ -204,6 +249,7 @@ void drawSceneUnitAxes()
    line(atX+0, atY-0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
    line(atX+0, atY+0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
    fill(0,0,0);
+   textSize(10);
    pushMatrix();
       translate(atX+1.0,atY-0.15,atZ+0.0);
       scale(0.03,-0.03,0.03);
@@ -211,6 +257,7 @@ void drawSceneUnitAxes()
    popMatrix();
    pushMatrix();
       translate(atX-0.13,atY+1.0,atZ+0.0);
+
       scale(0.03,-0.03,0.03);
       text("Y",0,0,0.0);
    popMatrix();
@@ -223,6 +270,7 @@ void drawSceneUnitAxes()
 
 }
 
+// Draw a sphere at the eye location and a magenta line from the eye to the viewpoint (atX, atY, atZ).
 void drawEye()
 {
    noStroke();
@@ -234,6 +282,9 @@ void drawEye()
   
   stroke(255,0,255);
   line(eyeX,eyeY,eyeZ,atX,atY,atZ);
+  strokeWeight(1);
+  stroke(128,0,128,64);
+  line(atX-dx*50.0, atY-dy*50.0, atZ-dz*50.0, atX+dx*50.0, atY+dy*50.0, atZ+dz*50.0);
 }
 
 // Compute ine unit UV coordinates of the viewing plane.
@@ -249,11 +300,17 @@ void ComputeUV()
   v2.normalize();
   U=v1.cross(v2);
   U.normalize();
+  uX=U.x;
+  uY=U.y;
+  uZ=U.z;
 
   v1=new PVector(eyeX-atX,eyeY-atY,eyeZ-atZ);
   v1.normalize();
   V=v1.cross(U);
   V.normalize();
+  vX=V.x;
+  vY=V.y;
+  vZ=V.z;
 
 }
 
