@@ -18,38 +18,38 @@ void ProcessKeyInput()
            switch(keyCode)  
            {
               case UP:  // pan viewing frustrum up.
-                 eyeX = eyeX+V.x*0.1;
-                 eyeY = eyeY+V.y*0.1;
-                 eyeZ = eyeZ+V.z*0.1;
-                 atX  = atX +V.x*0.1;
-                 atY  = atY +V.y*0.1;
-                 atZ  = atZ +V.z*0.1;
+                 eye.x = eye.x+V.x*0.1;
+                 eye.y = eye.y+V.y*0.1;
+                 eye.z = eye.z+V.z*0.1;
+                 at.x  = at.x +V.x*0.1;
+                 at.y  = at.y +V.y*0.1;
+                 at.x  = at.z +V.z*0.1;
                  break;
               case DOWN: // pan viewing frustrum down
-                 eyeX = eyeX-V.x*0.1;
-                 eyeY = eyeY-V.y*0.1;
-                 eyeZ = eyeZ-V.z*0.1;
-                 atX  = atX -V.x*0.1;
-                 atY  = atY -V.y*0.1;
-                 atZ  = atZ -V.z*0.1;
+                 eye.x = eye.x-V.x*0.1;
+                 eye.y = eye.y-V.y*0.1;
+                 eye.z = eye.z-V.z*0.1;
+                 at.x  = at.x -V.x*0.1;
+                 at.y  = at.y -V.y*0.1;
+                 at.z  = at.z -V.z*0.1;
                  break;
               case LEFT:  // pan viewing frustrum left.
-                 eyeX = eyeX-U.x*0.1;
-                 eyeY = eyeY-U.y*0.1;
-                 eyeZ = eyeZ-U.z*0.1;
-                 atX  = atX -U.x*0.1;
-                 atY  = atY -U.y*0.1;
-                 atZ  = atZ -U.z*0.1;
+                 eye.x = eye.x-U.x*0.1;
+                 eye.y = eye.y-U.y*0.1;
+                 eye.z = eye.z-U.z*0.1;
+                 at.x  = at.x -U.x*0.1;
+                 at.y  = at.y -U.y*0.1;
+                 at.z  = at.z -U.z*0.1;
                  break;
               case RIGHT: // pan viewing frustrum right.
-                 eyeX = eyeX+U.x*0.1;
-                 eyeY = eyeY+U.y*0.1;
-                 eyeZ = eyeZ+U.z*0.1;
-                 atX  = atX +U.x*0.1;
-                 atY  = atY +U.y*0.1;
-                 atZ  = atZ +U.z*0.1;
+                 eye.x = eye.x+U.x*0.1;
+                 eye.y = eye.y+U.y*0.1;
+                 eye.z = eye.z+U.z*0.1;
+                 at.x  = at.x +U.x*0.1;
+                 at.y  = at.y +U.y*0.1;
+                 at.z  = at.z +U.z*0.1;
                  break;
-           }
+              }
      }
      if( key== 'd')  // rotate eye right.
      {
@@ -61,21 +61,26 @@ void ProcessKeyInput()
      }
      if( key=='w')  // move viewing frustrum forward.
      {
-           eyeX =eyeX+dx*0.1;
-           eyeY =eyeY+dy*0.1;
-           eyeZ =eyeZ+dz*0.1;
-           atX  =atX+dx*0.1;
-           atY  =atY+dy*0.1;
-           atZ  =atZ+dz*0.1;
+           eye.x =eye.x+Vdir.x*0.1;
+           eye.y =eye.y+Vdir.y*0.1;
+           eye.z =eye.z+Vdir.z*0.1;
+           at.x  =at.x+Vdir.x*0.1;
+           at.y  =at.y+Vdir.y*0.1;
+           at.z  =at.z+Vdir.z*0.1;
      }
      if(key== 's') // move viewing frustrum backwards.
      {
-           eyeX =eyeX-dx*0.1;
-           eyeY =eyeY-dy*0.1;
-           eyeZ =eyeZ-dz*0.1;
-           atX  =atX-dx*0.1;
-           atY  =atY-dy*0.1;
-           atZ  =atZ-dz*0.1;
+           eye.x =eye.x-Vdir.x*0.1;
+           eye.y =eye.y-Vdir.y*0.1;
+           eye.z =eye.z-Vdir.z*0.1;
+           at.x  =at.x-Vdir.x*0.1;
+           at.y  =at.y-Vdir.y*0.1;
+           at.z  =at.z-Vdir.z*0.1;
+     }
+     if( key == DELETE)
+     {
+        Points.deleteSelected();
+        selections.clear();
      }
    }
 }

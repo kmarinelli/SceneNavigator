@@ -2,7 +2,6 @@
 // Kevin Marinelli
 // This tests the calculations for changing the position of the camera view in a scene.
 // The vew change for the moment is a simple rotation around the Y axis.
-// 11/04/2013
 //
 // Pressing the "v" key changes the scene view to the side of the camera and draws the camera location in the scene.
 // The input focus must be set to the window for the 'v' key to work.
@@ -11,88 +10,50 @@
 // NOTE: This program works in both Java and JavaScript environments for Processing2.
 //
 
-//import java.awt.AWTException;
-//import java.awt.Robot;
-
-float eyeX, eyeY,eyeZ;  // location of the eye (camera).
-float atX,atY,atZ;      // location if the viewpoint, the center of the viewing plane that the eye is looking at.
-float upX,upY,upZ;      // unit direction vector to call up in the 3D scene.
-float dx,dy,dz;         // Unit direction vector from the eye to the viewpoint.
-float dt=0.1;
-
-float R=10.0;    // Radius of rotation for the eye (camera).
-float RMIN=0.01;
-float RMAX=100.0;
-float eyeD;      // Distance from the eye to the viewing plane.
-float eyeTheta;
-
-float FOV=45.0; // Perspecive projection field of view.
-float ASPECTRATIO; // Aspect ration  of the display window.
-
-PVector U; // Unit U vector of the viewing plane in world coordinates.
-float uX,uY,uZ; // Separate ordinated of U.
-
-PVector V;  // Unit V vector of the viewing plane in world coordinates.
-float vX,vY,vZ; // Separate ordinated of V.
-
-float W;    // Width of display window projected onto the viewing plane in U coordinate.
-float H;    // Height of display winidow projected onto the viewing plane in V coordinates;
-
-
-
-float rotateEye=1.0;
-boolean DRAWSCENE=true;     // True for drawing the scene.
-boolean DRAWEYEMODE=false;  // True if drawing is offset from the eye.
-PFont f;
- 
-// Robot is not available in JavaScript mode! Need to find an alternative!
-//Robot robot;    // Robot class is used for positioning the mouse cursor. (may be useful when changing to offset view to reposition the mouse pointer to keep
-                // the same UV coordinate position, instead of the mouse position having a new UV coordinate after the view change.
- 
 void setup() 
 {
   float d;
   
   size(800, 800, OPENGL);
  
- /*  Does not work in JavaScript mode- need to find an alternatice technique.
-  try 
-  { 
-    robot = new Robot();
-  } 
-  catch (AWTException e) 
-  {
-    e.printStackTrace();
-  }
-  robot.mouseMove(width/2, height/2);      // Initialize the mouse position to the center of the screen.
-*/
   noCursor();                              // Turn off the normal mouse pointer.
    
-  atX=0.0;
-  atY=0.0;
-  atZ=0.0;
+  at = new PVector(0.0,0.0,0.0);
   
-  eyeX=atX-R;
-  eyeZ=atZ;
-  eyeY=0.0;
+  eye = new PVector(-R,0.0,0.0);
+     
+  mouseUV = new PVector(0.0,0.0,0.0);
   
-  eyeD=sqrt((eyeX-atX)*(eyeX-atX)+(eyeY-atY)*(eyeY-atY)+(eyeZ-atZ)*(eyeZ-atZ) );
+  eyeD=sqrt((eye.x-at.x)*(eye.x-at.x)+
+            (eye.y-at.y)*(eye.y-at.y)+
+            (eye.z-at.z)*(eye.z-at.z) );
   eyeTheta=0.0;
   
   // Invert the Y axis up component so that we have a sensible view of the scene in a right-hand coordinate system.
   // By default, Processing uses a left-handed coordinate system.
-  upX=0.0;
-  upY=-1.0;
-  upZ=0.0;
+  Up = new PVector(0.0, -1.0, 0.0);
+  ComputeUV();
+
+  Vdir = new PVector(at.x,at.y,at.z);
+  Vdir.sub(eye);
+
+  Points=new vertexlist();
+  selected=-1;
+  selections= new SelectionList();
   
   frameRate(30);
   noStroke();
   ASPECTRATIO=(float)width/(float)height;
   
   println(ASPECTRATIO);
+
+  SPHERERADIUS2=SPHERERADIUS*SPHERERADIUS;
   
   perspective(FOV,ASPECTRATIO,0.1,1000);  // Set the perspective transform. The default clips the znear plane too close.
   f = createFont("Arial",16,true);        // Arial, 16 point, anti-aliasing on
+
+  camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z);
+
 }
 
 void draw() 
@@ -101,31 +62,38 @@ void draw()
    background(128,128,255,255);   // Draw a non-black background, light blue
    
    // Note! This code is in error for arbitrary location. It should be
-   // a rotation around the V axis, which affects all of eyeX,eyeY,eyeZ.
+   // a rotation around the V axis, which affects the eye.
    //
-   eyeX=cos(eyeTheta)*R+atX;  // Compute the eye rotation around the Y axis.
-   eyeZ=sin(eyeTheta)*R+atZ;
+   eye.x=cos(eyeTheta)*R+at.x;  // Compute the eye rotation around the Y axis.
+   eye.z=sin(eyeTheta)*R+at.z;
    
    rotateEye=0.0;
-   camera(eyeX,eyeY,eyeZ,atX,atY,atZ,upX,upY,upZ); // If no 'v' key is pressed, look at the scene from the camera view.
-
-   dx=atX-eyeX;
-   dy=atY-eyeY;
-   dz=atZ-eyeZ;
-   d=sqrt(dx*dx+dy*dy+dz*dz);
+ 
+   Vdir.x=at.x-eye.x;
+   Vdir.y=at.y-eye.y;
+   Vdir.z=at.z-eye.z;
+   d=sqrt(Vdir.x*Vdir.x+Vdir.y*Vdir.y+Vdir.z*Vdir.z);
    if( d == 0) d=1.0; // Note d should never be allowed to be zero under any circumstances! This is a failsafe!
   
-   dx=dx/d;
-   dy=dy/d;
-   dz=dz/d;
-  
-   ProcessUserInput();
+   Vdir.z=Vdir.x/d;
+   Vdir.y=Vdir.y/d;
+   Vdir.z=Vdir.z/d;
 
-   if( DRAWEYEMODE)  camera(atX-d*dx*3+U.x*5.0+V.x*2.0, atY-d*dy*3+U.y*5.0+V.y*2.0,atZ-d*dz*3+U.z*5.0+V.z*2.0,atX,atY,atZ,upX,upY,upZ);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
-
+   if( DRAWEYEMODE) 
+   { 
+      camera(at.x-d*Vdir.x*3+U.x*5.0+V.x*2.0, 
+             at.y-d*Vdir.y*3+U.y*5.0+V.y*2.0,
+             at.z-d*Vdir.z*3+U.z*5.0+V.z*2.0,
+             at.x,at.y,at.z,Up.x,Up.y,Up.z);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
+   }
+   else
+   {
+       camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z); // If no 'v' key is pressed, look at the scene from the camera view.     
+   }
    ComputeUV();
    ComputeWindowProjection();
-
+   ProcessUserInput();    // Do not call before ComputeWindowProjection!
+   
    if(DRAWSCENE)drawScene();
    
    drawSceneUnitAxes();  // Draw the unit axes at the "at" location.
@@ -194,21 +162,21 @@ void DrawWindowProjection()
   VTemp= new PVector(V.x,V.y,V.z);
   VTemp.mult(H);
   
-  PULeft=new PVector(atX+U.x*W*scale+V.x*H*scale,
-                     atY+U.y*W*scale+V.y*H*scale,
-                     atZ+U.z*W*scale+V.z*H*scale);
+  PULeft=new PVector(at.x+U.x*W*scale+V.x*H*scale,
+                     at.y+U.y*W*scale+V.y*H*scale,
+                     at.z+U.z*W*scale+V.z*H*scale);
   
-  PURight=new PVector(atX-U.x*W*scale+V.x*H*scale,
-                      atY-U.y*W*scale+V.y*H*scale,
-                      atZ-U.z*W*scale+V.z*H*scale);
+  PURight=new PVector(at.x-U.x*W*scale+V.x*H*scale,
+                      at.y-U.y*W*scale+V.y*H*scale,
+                      at.z-U.z*W*scale+V.z*H*scale);
 
-  PLLeft=new PVector(atX+U.x*W*scale-V.x*H*scale,
-                     atY+U.y*W*scale-V.y*H*scale,
-                     atZ+U.z*W*scale-V.z*H*scale);
+  PLLeft=new PVector(at.x+U.x*W*scale-V.x*H*scale,
+                     at.y+U.y*W*scale-V.y*H*scale,
+                     at.z+U.z*W*scale-V.z*H*scale);
   
-  PLRight=new PVector(atX-U.x*W*scale-V.x*H*scale,
-                      atY-U.y*W*scale-V.y*H*scale,
-                      atZ-U.z*W*scale-V.z*H*scale);
+  PLRight=new PVector(at.x-U.x*W*scale-V.x*H*scale,
+                      at.y-U.y*W*scale-V.y*H*scale,
+                      at.z-U.z*W*scale-V.z*H*scale);
   
   stroke(255,255,128);
   line(PULeft.x,PULeft.y,PULeft.z, PURight.x,PURight.y,PURight.z);
@@ -225,45 +193,40 @@ void drawScene()
 {
    // Draw a simple sphere in the scene.
    lights();
-   fill(128,64,64);
    noStroke();
    
-   pushMatrix();
-      translate(0,0,0);
-      sphere(0.1);
-   popMatrix();
-
+   Points.draw();
 }
 
 void drawSceneUnitAxes()
 {
    stroke(255,0,0);
-   line(atX-1, atY-0, atZ-0, atX+1, atY+0, atZ+0);
-   line(atX+1-0.25,atY+0.25,atZ,atX+1,atY+0,atZ+0);
-   line(atX+1-0.25,atY-0.25,atZ,atX+1,atY+0,atZ+0);
+   line(at.x-1,     at.y-0,   at.z-0, at.x+1, at.y+0, at.z+0);
+   line(at.x+1-0.25,at.y+0.25,at.z,   at.x+1, at.y+0, at.z+0);
+   line(at.x+1-0.25,at.y-0.25,at.z,   at.x+1, at.y+0, at.z+0);
    stroke(0,255,0);
-   line(atX-0, atY-1, atZ-0, atX+0, atY+1, atZ+0);
-   line(atX-0.25,atY+1-0.25,atZ,atX+0,atY+1,atZ+0);
-   line(atX+0.25,atY+1-0.25,atZ,atX+0,atY+1,atZ+0);
+   line(at.x-0,   at.y-1,     at.z-0, at.x+0, at.y+1, at.z+0);
+   line(at.x-0.25,at.y+1-0.25,at.z,   at.x+0, at.y+1, at.z+0);
+   line(at.x+0.25,at.y+1-0.25,at.z,   at.x+0, at.y+1, at.z+0);
    stroke(0,0,255);
-   line(atX-0, atY-0, atZ-1, atX+0, atY+0, atZ+1);
-   line(atX+0, atY-0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
-   line(atX+0, atY+0.25, atZ+1-0.25, atX+0, atY+0, atZ+1);
+   line(at.x-0, at.y-0,    at.z-1,      at.x+0, at.y+0, at.z+1);
+   line(at.x+0, at.y-0.25, at.z+1-0.25, at.x+0, at.y+0, at.z+1);
+   line(at.x+0, at.y+0.25, at.z+1-0.25, at.x+0, at.y+0, at.z+1);
    fill(0,0,0);
    textSize(10);
    pushMatrix();
-      translate(atX+1.0,atY-0.15,atZ+0.0);
+      translate(at.x+1.0,at.y-0.15,at.z+0.0);
       scale(0.03,-0.03,0.03);
       text("X",0.0,0.0,0.0);
    popMatrix();
    pushMatrix();
-      translate(atX-0.13,atY+1.0,atZ+0.0);
+      translate(at.x-0.13,at.y+1.0,at.z+0.0);
 
       scale(0.03,-0.03,0.03);
       text("Y",0,0,0.0);
    popMatrix();
    pushMatrix();
-      translate(atX+0,atY-0.15,atZ+1.0);
+      translate(at.x+0,at.y-0.15,at.z+1.0);
       rotate(PI/2,0.0,-1.0,0.0);
       scale(0.03,-0.03,0.03);
       text("Z",0.0,0.0,0.0);
@@ -271,21 +234,22 @@ void drawSceneUnitAxes()
 
 }
 
-// Draw a sphere at the eye location and a magenta line from the eye to the viewpoint (atX, atY, atZ).
+// Draw a sphere at the eye location and a magenta line from the eye to the viewpoint "at".
 void drawEye()
 {
    noStroke();
    fill(64,64,255);
    pushMatrix();
-      translate(eyeX,eyeY,eyeZ);
+      translate(eye.x,eye.y,eye.z);
       sphere(0.25);
    popMatrix();
   
   stroke(255,0,255);
-  line(eyeX,eyeY,eyeZ,atX,atY,atZ);
+  line(eye.x,eye.y,eye.z,at.x,at.y,at.z);
   strokeWeight(1);
   stroke(128,0,128,64);
-  line(atX-dx*50.0, atY-dy*50.0, atZ-dz*50.0, atX+dx*50.0, atY+dy*50.0, atZ+dz*50.0);
+  line(at.x-Vdir.x*50.0, at.y-Vdir.y*50.0, at.z-Vdir.z*50.0, 
+       at.x+Vdir.x*50.0, at.y+Vdir.y*50.0, at.z+Vdir.z*50.0);
 }
 
 // Compute ine unit UV coordinates of the viewing plane.
@@ -295,23 +259,17 @@ void ComputeUV()
   PVector v1;
   PVector v2;
   
-  v1=new PVector(eyeX-atX,eyeY-atY,eyeZ-atZ);
+  v1=new PVector(eye.x-at.x,eye.y-at.y,eye.z-at.z);
   v1.normalize();
-  v2=new PVector(upX,upY,upZ);
+  v2=new PVector(Up.x, Up.y, Up.z);
   v2.normalize();
   U=v1.cross(v2);
   U.normalize();
-  uX=U.x;
-  uY=U.y;
-  uZ=U.z;
 
-  v1=new PVector(eyeX-atX,eyeY-atY,eyeZ-atZ);
+  v1=new PVector(eye.x-at.x,eye.y-at.y,eye.z-at.z);
   v1.normalize();
   V=v1.cross(U);
   V.normalize();
-  vX=V.x;
-  vY=V.y;
-  vZ=V.z;
 
 }
 
@@ -343,10 +301,10 @@ void drawPlane()
   for(i=-( (int)W+1);i<=(int)W+1;i++)
   {
      PU=new PVector(U.x*i,U.y*i,U.z*i);
-     Top=new PVector(atX,atY,atZ);
+     Top=new PVector(at.x,at.y,at.z);
      Top.add(PV);
      Top.add(PU);
-     Bottom= new PVector(atX,atY,atZ);
+     Bottom= new PVector(at.x,at.y,at.z);
      Bottom.sub(PV);
      Bottom.add(PU);
      line(Top.x,Top.y,Top.z,Bottom.x,Bottom.y,Bottom.z);
@@ -357,10 +315,10 @@ void drawPlane()
   for(i=-( (int)H+1);i<=(int)H+1;i++)
   {
      PV=new PVector(V.x*i,V.y*i,V.z*i);
-     Top=new PVector(atX,atY,atZ);
+     Top=new PVector(at.x,at.y,at.z);
      Top.add(PV);
      Top.add(PU);
-     Bottom= new PVector(atX,atY,atZ);
+     Bottom= new PVector(at.x,at.y,at.z);
      Bottom.add(PV);
      Bottom.sub(PU);
      line(Top.x,Top.y,Top.z,Bottom.x,Bottom.y,Bottom.z);
