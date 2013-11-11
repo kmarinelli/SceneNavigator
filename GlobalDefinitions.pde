@@ -1,37 +1,32 @@
-PVector eye;  // location of the eye (camera).
-PVector at;      // location if the viewpoint, the center of the viewing plane that the eye is looking at.
-PVector mouseUV;  // Mouse projection onto UV viewing plane.
-float upX,upY,upZ;      // unit direction vector to call up in the 3D scene.
-float dx,dy,dz;         // Unit direction vector from the eye to the viewpoint.
-float dt=0.1;
+float SPHERERADIUS = 0.1;   // Size of sphere when drawing points.
+float SPHERERADIUS2;        // Square of SPHERERADIUS.
+float dt=0.1;               // Movement speed.
+float R=10.0;               // Initial distance from eye to viewpoint.
+float RMIN=0.01;            // Distance to near viewing plane.
+float RMAX=100.0;           // Distance to far viewing plane.
+float FOV=45.0;             // Perspecive projection field of view.
+float ASPECTRATIO;          // Aspect ration  of the display window.
 
-float R=10.0;    // Radius of rotation for the eye (camera).
-float RMIN=0.01;
-float RMAX=100.0;
-float eyeD;      // Distance from the eye to the viewing plane.
-float eyeTheta;
-
-float FOV=45.0; // Perspecive projection field of view.
-float ASPECTRATIO; // Aspect ration  of the display window.
-
-PVector U; // Unit U vector of the viewing plane in world coordinates.
-float uX,uY,uZ; // Separate ordinated of U.
-
-PVector V;  // Unit V vector of the viewing plane in world coordinates.
-float vX,vY,vZ; // Separate ordinated of V.
-
-float W;    // Width of display window projected onto the viewing plane in U coordinate.
-float H;    // Height of display winidow projected onto the viewing plane in V coordinates;
-
-float rotateEye=1.0;
+float rotateEye=1.0;        // Eye rotation rate in degrees.
 boolean DRAWSCENE=true;     // True for drawing the scene.
 boolean DRAWEYEMODE=false;  // True if drawing is offset from the eye.
-PFont f;
- 
-vertexlist Points;
-int selected;
-SelectionList selections;
 
-float SPHERERADIUS = 0.1;
-float SPHERERADIUS2;  // Square of SPHERERADIUS.
+float W;                    // Width of display window projected onto the viewing plane in U coordinates.
+float H;                    // Height of display winidow projected onto the viewing plane in V coordinates;
 
+PVector eye;                // location of the eye (camera).
+PVector at;                 // location if the viewpoint in the center of the viewing plane.
+PVector Up;                 // unit direction vector to call up in the 3D scene.
+PVector Vdir;               // Unit direction vector from the eye to the viewpoint.
+PVector U;                  // Unit U vector of the viewing plane in world coordinates.
+PVector V;                  // Unit V vector of the viewing plane in world coordinates.
+PVector mouseUV;            // Mouse projection onto UV viewing plane.  
+
+vertexlist Points;           // List of points
+int selected;                // Currently selected point.
+SelectionList selections;    // List of selected points.
+
+float eyeD;                  // Distance from the eye to the viewing plane.
+float eyeTheta;              // Current eye rotation angle.
+
+PFont f;         // Font for drawing.

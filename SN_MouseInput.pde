@@ -6,9 +6,6 @@
 //  mousePressed()       - Handle mouse button pressed events.
 //  mouseReleased()      - Handle mouse button released events.
 //
-
-
-
 int mouseMillis=0;           // millisecond time when mouse button was pressed.
 float mDownX=0, mDownY=0, mDownZ=0;  // Mouse UV coordinates when button was pressed.
 
@@ -61,9 +58,6 @@ void mouseReleased()
               selections.clear();
            selected=tmp;
            selections.add(selected);
-
-              
- 
       }
 
     }
@@ -82,12 +76,12 @@ void TrackMouse()
   x=2*((float)mouseX-(float)width/2)/width*W; 
   y= 2*(-((float)mouseY-(float)height/2))/height*H;
 
-  mouseUV.x=at.x-uX*x+vX*y;
-  mouseUV.y=at.y-uY*x+vY*y;
-  mouseUV.z=at.z-uZ*x+vZ*y;
+  mouseUV.x=at.x-U.x*x+V.x*y;
+  mouseUV.y=at.y-U.y*x+V.y*y;
+  mouseUV.z=at.z-U.z*x+V.z*y;
  
-     noStroke();
-        lights();
+   noStroke();
+   lights();
    pushMatrix();
       translate(mouseUV.x,mouseUV.y,mouseUV.z);
       sphere(0.05);

@@ -51,9 +51,5 @@ float intersect( PVector rayorig, PVector raydir,
    if (!solveQuadratic(a, b, c, t0, t1)) 
       return 0.0; 
 
-/*
-   if (t0 > ray.tmax) 
-      return 0.0; 
-*/
    return t0; 
 }

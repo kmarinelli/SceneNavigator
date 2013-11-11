@@ -10,10 +10,6 @@
 // NOTE: This program works in both Java and JavaScript environments for Processing2.
 //
 
-//import java.awt.AWTException;
-//import java.awt.Robot;
-
-
 void setup() 
 {
   float d;
@@ -25,7 +21,7 @@ void setup()
   at = new PVector(0.0,0.0,0.0);
   
   eye = new PVector(-R,0.0,0.0);
-  
+     
   mouseUV = new PVector(0.0,0.0,0.0);
   
   eyeD=sqrt((eye.x-at.x)*(eye.x-at.x)+
@@ -35,10 +31,12 @@ void setup()
   
   // Invert the Y axis up component so that we have a sensible view of the scene in a right-hand coordinate system.
   // By default, Processing uses a left-handed coordinate system.
-  upX=0.0;
-  upY=-1.0;
-  upZ=0.0;
-  
+  Up = new PVector(0.0, -1.0, 0.0);
+  ComputeUV();
+
+  Vdir = new PVector(at.x,at.y,at.z);
+  Vdir.sub(eye);
+
   Points=new vertexlist();
   selected=-1;
   selections= new SelectionList();
@@ -54,6 +52,7 @@ void setup()
   perspective(FOV,ASPECTRATIO,0.1,1000);  // Set the perspective transform. The default clips the znear plane too close.
   f = createFont("Arial",16,true);        // Arial, 16 point, anti-aliasing on
 
+  camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z);
 
 }
 
@@ -69,29 +68,32 @@ void draw()
    eye.z=sin(eyeTheta)*R+at.z;
    
    rotateEye=0.0;
-   camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,upX,upY,upZ); // If no 'v' key is pressed, look at the scene from the camera view.
-
-   dx=at.x-eye.x;
-   dy=at.y-eye.y;
-   dz=at.z-eye.z;
-   d=sqrt(dx*dx+dy*dy+dz*dz);
+ 
+   Vdir.x=at.x-eye.x;
+   Vdir.y=at.y-eye.y;
+   Vdir.z=at.z-eye.z;
+   d=sqrt(Vdir.x*Vdir.x+Vdir.y*Vdir.y+Vdir.z*Vdir.z);
    if( d == 0) d=1.0; // Note d should never be allowed to be zero under any circumstances! This is a failsafe!
   
-   dx=dx/d;
-   dy=dy/d;
-   dz=dz/d;
-  
-   ProcessUserInput();
+   Vdir.z=Vdir.x/d;
+   Vdir.y=Vdir.y/d;
+   Vdir.z=Vdir.z/d;
 
-   if( DRAWEYEMODE)  
-      camera(at.x-d*dx*3+U.x*5.0+V.x*2.0, 
-             at.y-d*dy*3+U.y*5.0+V.y*2.0,
-             at.z-d*dz*3+U.z*5.0+V.z*2.0,
-             at.x,at.y,at.z,upX,upY,upZ);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
-
+   if( DRAWEYEMODE) 
+   { 
+      camera(at.x-d*Vdir.x*3+U.x*5.0+V.x*2.0, 
+             at.y-d*Vdir.y*3+U.y*5.0+V.y*2.0,
+             at.z-d*Vdir.z*3+U.z*5.0+V.z*2.0,
+             at.x,at.y,at.z,Up.x,Up.y,Up.z);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
+   }
+   else
+   {
+       camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z); // If no 'v' key is pressed, look at the scene from the camera view.     
+   }
    ComputeUV();
    ComputeWindowProjection();
-
+   ProcessUserInput();    // Do not call before ComputeWindowProjection!
+   
    if(DRAWSCENE)drawScene();
    
    drawSceneUnitAxes();  // Draw the unit axes at the "at" location.
@@ -246,8 +248,8 @@ void drawEye()
   line(eye.x,eye.y,eye.z,at.x,at.y,at.z);
   strokeWeight(1);
   stroke(128,0,128,64);
-  line(at.x-dx*50.0, at.y-dy*50.0, at.z-dz*50.0, 
-       at.x+dx*50.0, at.y+dy*50.0, at.z+dz*50.0);
+  line(at.x-Vdir.x*50.0, at.y-Vdir.y*50.0, at.z-Vdir.z*50.0, 
+       at.x+Vdir.x*50.0, at.y+Vdir.y*50.0, at.z+Vdir.z*50.0);
 }
 
 // Compute ine unit UV coordinates of the viewing plane.
@@ -259,21 +261,15 @@ void ComputeUV()
   
   v1=new PVector(eye.x-at.x,eye.y-at.y,eye.z-at.z);
   v1.normalize();
-  v2=new PVector(upX,upY,upZ);
+  v2=new PVector(Up.x, Up.y, Up.z);
   v2.normalize();
   U=v1.cross(v2);
   U.normalize();
-  uX=U.x;
-  uY=U.y;
-  uZ=U.z;
 
   v1=new PVector(eye.x-at.x,eye.y-at.y,eye.z-at.z);
   v1.normalize();
   V=v1.cross(U);
   V.normalize();
-  vX=V.x;
-  vY=V.y;
-  vZ=V.z;
 
 }
 
