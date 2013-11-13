@@ -72,4 +72,14 @@ class   SelectionList
       selectionlist.clear();
       selected=-1;
    }  
+   
+   int size()
+   {
+     return selectionlist.size();
+   }
+   
+   int get(int i)
+   {
+     return selectionlist.get(i);
+   }
 }

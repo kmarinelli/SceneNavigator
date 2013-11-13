@@ -82,6 +82,7 @@ void ProcessKeyInput()
         Points.deleteSelected();
         selections.clear();
      }
+
    }
 }
 
@@ -96,6 +97,21 @@ void keyReleased()
          case 'v':  // toggle offset view from the eye.
             DRAWEYEMODE= !DRAWEYEMODE;
             break;
+         case 't':
+           if(selections.size()==3)
+           {
+             PVector p1,p2,p3;
+             Triangle T;
+             int i;
+             i = selections.get(0);
+             p1 = Points.get(i);
+             i = selections.get(1);
+             p2 = Points.get(i);
+             i = selections.get(2);
+             p3 = Points.get(i);
+             trianglelist.add(p1,p2,p3);       
+           }
+           break;
       }
 }
 

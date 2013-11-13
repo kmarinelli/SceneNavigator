@@ -109,4 +109,9 @@ class   vertexlist
       }
       selections.clear();
   }
+  
+  PVector get(int i)
+  {
+      return (PVector) pointlist.get(i);
+  }
 }

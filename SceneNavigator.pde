@@ -40,6 +40,7 @@ void setup()
   Points=new vertexlist();
   selected=-1;
   selections= new SelectionList();
+  trianglelist = new TriangleList();
   
   frameRate(30);
   noStroke();
@@ -81,9 +82,9 @@ void draw()
 
    if( DRAWEYEMODE) 
    { 
-      camera(at.x-d*Vdir.x*3+U.x*5.0+V.x*2.0, 
-             at.y-d*Vdir.y*3+U.y*5.0+V.y*2.0,
-             at.z-d*Vdir.z*3+U.z*5.0+V.z*2.0,
+      camera(at.x-R*Vdir.x+U.x*3.0+V.x*2.0, 
+             at.y-R*Vdir.y+U.y*3.0+V.y*2.0,
+             at.z-R*Vdir.z+U.z*3.0+V.z*2.0,
              at.x,at.y,at.z,Up.x,Up.y,Up.z);  // If someone pressed 'v', look at the scene from the side instead of from the camera view.
    }
    else
@@ -92,15 +93,14 @@ void draw()
    }
    ComputeUV();
    ComputeWindowProjection();
-   ProcessUserInput();    // Do not call before ComputeWindowProjection!
-   
-   if(DRAWSCENE)drawScene();
-   
+   drawPlane();          // Draw unit grid lines in UV coordinates on the viewing plane.
+    
    drawSceneUnitAxes();  // Draw the unit axes at the "at" location.
    DrawWindowProjection();      // Draw the window projected onto the viewing plane
 
-   drawPlane();          // Draw unit grid lines in UV coordinates on the viewing plane.
-  
+        ProcessUserInput();    // Do not call before ComputeWindowProjection!
+
+   if(DRAWSCENE)drawScene(); 
 
   if( DRAWEYEMODE) drawEye();   // If looking from the side of the camera, draw the eye.
 
@@ -114,6 +114,7 @@ void draw()
       if( eyeTheta>TWO_PI) eyeTheta=0.0;
       if( eyeTheta<0) eyeTheta=TWO_PI;
    }
+ 
    resetMatrix();
    fill(0, 102, 153);
    textSize(32);
@@ -196,6 +197,7 @@ void drawScene()
    noStroke();
    
    Points.draw();
+   trianglelist.draw();
 }
 
 void drawSceneUnitAxes()

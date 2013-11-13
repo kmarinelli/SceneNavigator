@@ -6,6 +6,8 @@ float RMIN=0.01;            // Distance to near viewing plane.
 float RMAX=100.0;           // Distance to far viewing plane.
 float FOV=45.0;             // Perspecive projection field of view.
 float ASPECTRATIO;          // Aspect ration  of the display window.
+color   TRIANGLELINECOLOR=0x000000;
+color   TRIANGLEFILLCOLOR=0x10EFEF10;
 
 float rotateEye=1.0;        // Eye rotation rate in degrees.
 boolean DRAWSCENE=true;     // True for drawing the scene.
@@ -22,9 +24,10 @@ PVector U;                  // Unit U vector of the viewing plane in world coord
 PVector V;                  // Unit V vector of the viewing plane in world coordinates.
 PVector mouseUV;            // Mouse projection onto UV viewing plane.  
 
-vertexlist Points;           // List of points
+vertexlist Points;           // List of points.
 int selected;                // Currently selected point.
 SelectionList selections;    // List of selected points.
+TriangleList trianglelist;   // List of triangles.
 
 float eyeD;                  // Distance from the eye to the viewing plane.
 float eyeTheta;              // Current eye rotation angle.
