@@ -45,6 +45,10 @@ class   vertexlist
      int i;
      int p;
      p=FindIntersection();
+     shininess(8.0);
+     lightSpecular(255, 255, 255);
+     specular(255, 0, 255);
+
      for(i=0;i<pointlist.size();i++)
      {
        PVector q= (PVector) pointlist.get(i);
@@ -52,7 +56,7 @@ class   vertexlist
        fill(128,64,64);
        if(selections.find(i))
           if( i == p)
-             fill(250,250,64);
+             fill(200,200,64);
           else
              fill(200,200,200);
        else if (i == p)

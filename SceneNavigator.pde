@@ -28,20 +28,23 @@ void setup()
             (eye.y-at.y)*(eye.y-at.y)+
             (eye.z-at.z)*(eye.z-at.z) );
   eyeTheta=0.0;
-  
+
+ 
   // Invert the Y axis up component so that we have a sensible view of the scene in a right-hand coordinate system.
   // By default, Processing uses a left-handed coordinate system.
+
   Up = new PVector(0.0, -1.0, 0.0);
   ComputeUV();
 
   Vdir = new PVector(at.x,at.y,at.z);
   Vdir.sub(eye);
 
-  Points=new vertexlist();
+
   selected=-1;
-  selections= new SelectionList();
+  selections   = new SelectionList();
+  Points       = new vertexlist();
   trianglelist = new TriangleList();
-  
+ 
   frameRate(30);
   noStroke();
   ASPECTRATIO=(float)width/(float)height;
@@ -49,11 +52,11 @@ void setup()
   println(ASPECTRATIO);
 
   SPHERERADIUS2=SPHERERADIUS*SPHERERADIUS;
-  
+ 
   perspective(FOV,ASPECTRATIO,0.1,1000);  // Set the perspective transform. The default clips the znear plane too close.
-  f = createFont("Arial",16,true);        // Arial, 16 point, anti-aliasing on
 
-  camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z);
+f = createFont("Arial",16,true);        // Arial, 16 point, anti-aliasing on
+
 
 }
 
@@ -61,7 +64,8 @@ void draw()
 {
    float d;
    background(128,128,255,255);   // Draw a non-black background, light blue
-   
+  
+
    // Note! This code is in error for arbitrary location. It should be
    // a rotation around the V axis, which affects the eye.
    //
@@ -70,15 +74,17 @@ void draw()
    
    rotateEye=0.0;
  
-   Vdir.x=at.x-eye.x;
-   Vdir.y=at.y-eye.y;
-   Vdir.z=at.z-eye.z;
+   Vdir.x= at.x - eye.x;
+   Vdir.y= at.y - eye.y;
+   Vdir.z= at.z - eye.z;
+   
    d=sqrt(Vdir.x*Vdir.x+Vdir.y*Vdir.y+Vdir.z*Vdir.z);
    if( d == 0) d=1.0; // Note d should never be allowed to be zero under any circumstances! This is a failsafe!
   
-   Vdir.z=Vdir.x/d;
+   Vdir.x=Vdir.x/d;
    Vdir.y=Vdir.y/d;
    Vdir.z=Vdir.z/d;
+
 
    if( DRAWEYEMODE) 
    { 
@@ -91,6 +97,7 @@ void draw()
    {
        camera(eye.x,eye.y,eye.z,at.x,at.y,at.z,Up.x,Up.y,Up.z); // If no 'v' key is pressed, look at the scene from the camera view.     
    }
+
    ComputeUV();
    ComputeWindowProjection();
    drawPlane();          // Draw unit grid lines in UV coordinates on the viewing plane.
@@ -194,6 +201,10 @@ void drawScene()
 {
    // Draw a simple sphere in the scene.
    lights();
+ //  directionalLight(255, 102, 126, 0, -1, 0);
+  // directionalLight(51, 102, 255, 1, 0 , 0);
+      directionalLight(200, 102, 255, 0, 0 , -1);
+         directionalLight(204, 200, 204, 0, 0 , 1);
    noStroke();
    
    Points.draw();

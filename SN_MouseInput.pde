@@ -54,8 +54,10 @@ void mouseReleased()
       else
       { 
            int tmp=selected;
-           if( keyCode != SHIFT)
+           
+           if( !keyPressed || (keyPressed&&keyCode != SHIFT))
               selections.clear();
+           println("Adding selection to list");
            selected=tmp;
            selections.add(selected);
       }

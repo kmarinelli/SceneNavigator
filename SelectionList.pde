@@ -1,10 +1,10 @@
 class   SelectionList
 {
-  IntList selectionlist;
+  IntList listelements;
   
   SelectionList()
   { 
-     selectionlist = new IntList();  // Create an empty ArrayList
+     listelements = new IntList();  // Create an empty ArrayList
   }
 
 //  Add a new  selection to the list.
@@ -12,10 +12,10 @@ class   SelectionList
   void add(int i)
   {
     if( i < 0) return;
-    if( selectionlist.hasValue(i) == false)
+    if( listelements.hasValue(i) == false)
     {
        println( "Selection is not listed! Adding selection "+i);
-       selectionlist.append(i);
+       listelements.append(i);
        println("Completed adding point, now listing!");
 
      }
@@ -29,21 +29,21 @@ class   SelectionList
   
   boolean find(int i)
   {
-     return selectionlist.hasValue(i);
+     return listelements.hasValue(i);
   }
   void list()
   {
      int i;
-     for(i=0;i<selectionlist.size();i++)
+     for(i=0;i<listelements.size();i++)
      {
-       println("Selection element "+i+" = "+selectionlist.get(i));
+       println("Selection element "+i+" = "+listelements.get(i));
      }
      println("Listing complete!");
   }
 
   void sortReverse()
   {
-    selectionlist.sortReverse();
+    listelements.sortReverse();
   }
   
 // Delete selection s from the list.
@@ -52,13 +52,13 @@ class   SelectionList
      int i;
      int q;
 
-     for(i=0;i<selectionlist.size();i++)
+     for(i=0;i<listelements.size();i++)
      {
-       q = selectionlist.get(i);
+       q = listelements.get(i);
        if( q==s) 
        {
-           selectionlist.remove(i);
-           if( selectionlist.size()==0) 
+           listelements.remove(i);
+           if( listelements.size()==0) 
            {
               selected=-1;
               return;
@@ -69,17 +69,17 @@ class   SelectionList
   
    void clear()
    {
-      selectionlist.clear();
+      listelements.clear();
       selected=-1;
    }  
    
    int size()
    {
-     return selectionlist.size();
+     return listelements.size();
    }
    
    int get(int i)
    {
-     return selectionlist.get(i);
+     return listelements.get(i);
    }
 }

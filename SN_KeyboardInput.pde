@@ -61,21 +61,21 @@ void ProcessKeyInput()
      }
      if( key=='w')  // move viewing frustrum forward.
      {
-           eye.x =eye.x+Vdir.x*0.1;
-           eye.y =eye.y+Vdir.y*0.1;
-           eye.z =eye.z+Vdir.z*0.1;
-           at.x  =at.x+Vdir.x*0.1;
-           at.y  =at.y+Vdir.y*0.1;
-           at.z  =at.z+Vdir.z*0.1;
+           eye.x =  eye.x+Vdir.x*0.1;
+           eye.y =  eye.y+Vdir.y*0.1;
+           eye.z =  eye.z+Vdir.z*0.1;
+           at.x  =  at.x +Vdir.x*0.1;
+           at.y  =  at.y +Vdir.y*0.1;
+           at.z  =  at.z +Vdir.z*0.1;
      }
      if(key== 's') // move viewing frustrum backwards.
      {
-           eye.x =eye.x-Vdir.x*0.1;
-           eye.y =eye.y-Vdir.y*0.1;
-           eye.z =eye.z-Vdir.z*0.1;
-           at.x  =at.x-Vdir.x*0.1;
-           at.y  =at.y-Vdir.y*0.1;
-           at.z  =at.z-Vdir.z*0.1;
+           eye.x =  eye.x-Vdir.x*0.1;
+           eye.y =  eye.y-Vdir.y*0.1;
+           eye.z =  eye.z-Vdir.z*0.1;
+           at.x  =  at.x -Vdir.x*0.1;
+           at.y  =  at.y -Vdir.y*0.1;
+           at.z  =  at.z -Vdir.z*0.1;
      }
      if( key == DELETE)
      {
