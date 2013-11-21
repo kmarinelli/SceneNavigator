@@ -91,9 +91,6 @@ void keyReleased()
 {
       switch(key)
       {
-         case 'D':  // toggle scene drawing.
-            DRAWSCENE= !DRAWSCENE;
-            break;
          case 'v':  // toggle offset view from the eye.
             DRAWEYEMODE= !DRAWEYEMODE;
             break;

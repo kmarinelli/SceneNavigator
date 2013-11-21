@@ -4,19 +4,19 @@ class   vertexlist
   
   vertexlist()
   { 
-     pointlist = new ArrayList();  // Create an empty ArrayList
+     this.pointlist = new ArrayList();  // Create an empty ArrayList
   }
   
   int nElements()
   {
-    return pointlist.size();
+    return this.pointlist.size();
   }
   
   void add(float x, float y, float z)
   {
     println( "Adding point at "+x+" "+y+" "+z);
     PVector q = new PVector(x,y,z);
-    pointlist.add(q);
+    this.pointlist.add(q);
     println("Completed adding point, now listing!");
     this.list();
   }
@@ -26,17 +26,17 @@ class   vertexlist
       int i;
       int n;
       println("In Point list");
-      n=pointlist.size();
+      n=this.pointlist.size();
       println(n+" points in list!");
   }
   
   void delete( PVector p)
   {
      int i;
-     for(i=0;i<pointlist.size();i++)
+     for(i=0;i<this.pointlist.size();i++)
      {
-       PVector q = (PVector) pointlist.get(i);
-       if( q==p) pointlist.remove(i);
+       PVector q = (PVector) this.pointlist.get(i);
+       if( q==p) this.pointlist.remove(i);
      }
   }
   
@@ -44,17 +44,18 @@ class   vertexlist
   {
      int i;
      int p;
-     p=FindIntersection();
+     p=this.FindIntersection();
+
      shininess(8.0);
      lightSpecular(255, 255, 255);
      specular(255, 0, 255);
 
-     for(i=0;i<pointlist.size();i++)
+     for(i=0;i<this.pointlist.size();i++)
      {
-       PVector q= (PVector) pointlist.get(i);
+       PVector q= (PVector) this.pointlist.get(i);
        pushMatrix();
        fill(128,64,64);
-       if(selections.find(i))
+      if(selected>=0&&selections.find(i))
           if( i == p)
              fill(200,200,64);
           else
@@ -79,9 +80,9 @@ class   vertexlist
       
       selected=-1;
       tselected=0;
-      for(i=0;i<pointlist.size();i++)
+      for(i=0;i<this.pointlist.size();i++)
       {
-         PVector q=(PVector) pointlist.get(i);
+         PVector q=(PVector) this.pointlist.get(i);
          PVector ray=new PVector(mouseUV.x,mouseUV.y,mouseUV.z);
          ray.sub(eye);
          t=intersect(eye,ray,q,SPHERERADIUS2);
@@ -97,7 +98,6 @@ class   vertexlist
            selected=i;
          }
       }  
-     // println("Found "+selected);
       return selected;
   }
 
@@ -106,16 +106,16 @@ class   vertexlist
       int i;
       selections.sortReverse();
       println("Deleting selections!");
-      for(i=pointlist.size()-1;i>=0;i--)
+      for(i=this.pointlist.size()-1;i>=0;i--)
       {
           if( selections.find(i))
-             pointlist.remove(i);
+             this.pointlist.remove(i);
       }
       selections.clear();
   }
   
   PVector get(int i)
   {
-      return (PVector) pointlist.get(i);
+      return (PVector) this.pointlist.get(i);
   }
 }

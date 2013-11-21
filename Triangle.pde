@@ -7,9 +7,9 @@ class Triangle
   
    Triangle(PVector v1, PVector v2, PVector v3)
   {
-      p1 = new PVector(v1.x, v1.y, v1.z);
-      p2 = new PVector(v2.x, v2.y, v2.z);
-      p3 = new PVector(v3.x, v3.y, v3.z);
+      this.p1 = new PVector(v1.x, v1.y, v1.z);
+      this.p2 = new PVector(v2.x, v2.y, v2.z);
+      this.p3 = new PVector(v3.x, v3.y, v3.z);
   }
   
   void draw()
@@ -17,18 +17,18 @@ class Triangle
     stroke(TRIANGLELINECOLOR);
     fill(TRIANGLEFILLCOLOR);
     beginShape();
-       vertex(p1.x, p1.y, p1.z);
-       vertex(p2.x, p2.y, p2.z);
-       vertex(p3.x, p3.y, p3.z);
+       vertex(this.p1.x, this.p1.y, this.p1.z);
+       vertex(this.p2.x, this.p2.y, this.p2.z);
+       vertex(this.p3.x, this.p3.y, this.p3.z);
     endShape(CLOSE);
   }
   
   void print()
   {
     println("Triangle");
-    println( p1.x+" "+p1.y+" "+p1.z);
-    println( p2.x+" "+p2.y+" "+p2.z);
-    println( p3.x+" "+p3.y+" "+p3.z);
+    println( this.p1.x+" "+this.p1.y+" "+this.p1.z);
+    println( this.p2.x+" "+this.p2.y+" "+this.p2.z);
+    println( this.p3.x+" "+this.p3.y+" "+this.p3.z);
     println();
   }
 }
@@ -39,15 +39,15 @@ class TriangleList
   
   TriangleList()
   { 
-     trianglelist = new ArrayList();  // Create an empty ArrayList
+     this.trianglelist = new ArrayList();  // Create an empty ArrayList
   }
 
   void add(PVector v1, PVector v2, PVector v3)
   {
     Triangle T= new Triangle(v1, v2, v3);
-    trianglelist.add(T);
+    this.trianglelist.add(T);
     println("Completed adding triangle, now listing!");
-    list();
+    this.list();
   }
   
   void list()
@@ -55,18 +55,18 @@ class TriangleList
     Triangle T;
     
     int i;
-    for(i=0;i<trianglelist.size();i++)
+    for(i=0;i<this.trianglelist.size();i++)
     {
-      T=(Triangle) trianglelist.get(i);
+      T=(Triangle) this.trianglelist.get(i);
       T.print();
     }
   }
   void draw()
   {
      int i;
-     for(i=0;i<trianglelist.size();i++)
+     for(i=0;i<this.trianglelist.size();i++)
      {
-       Triangle T= (Triangle) trianglelist.get(i);
+       Triangle T= (Triangle) this.trianglelist.get(i);
        T.draw();
      }
   }

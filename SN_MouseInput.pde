@@ -49,15 +49,26 @@ void mouseReleased()
       println("Selection is "+selected);
       if( selected == -1)
       {
-          selections.clear();
+          if( selections.size()>0)
+             selections.clear();
       }
       else
       { 
            int tmp=selected;
-           
+          
            if( !keyPressed || (keyPressed&&keyCode != SHIFT))
-              selections.clear();
-           println("Adding selection to list");
+           {
+              println("Clearing Selections list!");
+              if( selections.size()>0)
+              {
+                 println("clearing: List size = "+selections.size());           
+                 selections.clear();
+              }
+              else
+                 println("Selections clear is not necessary!");
+           }
+              
+           println("Adding selection "+tmp+" to list");
            selected=tmp;
            selections.add(selected);
       }

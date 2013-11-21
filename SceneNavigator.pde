@@ -107,7 +107,7 @@ void draw()
 
         ProcessUserInput();    // Do not call before ComputeWindowProjection!
 
-   if(DRAWSCENE)drawScene(); 
+  if(DRAWSCENE)drawScene(); 
 
   if( DRAWEYEMODE) drawEye();   // If looking from the side of the camera, draw the eye.
 

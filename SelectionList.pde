@@ -4,7 +4,7 @@ class   SelectionList
   
   SelectionList()
   { 
-     listelements = new IntList();  // Create an empty ArrayList
+     this.listelements = new IntList();  // Create an empty ArrayList
   }
 
 //  Add a new  selection to the list.
@@ -12,38 +12,42 @@ class   SelectionList
   void add(int i)
   {
     if( i < 0) return;
-    if( listelements.hasValue(i) == false)
+    if( this.listelements.hasValue(i) == false)
     {
        println( "Selection is not listed! Adding selection "+i);
-       listelements.append(i);
+       this.listelements.append(i);
        println("Completed adding point, now listing!");
 
      }
     else
     {
       println("removing Selection!");
-      delete(i);
+      this.delete(i);
+      if( this.listelements.size()==0) selected=-1;
     }
-    list();
+    this.list();
   }
   
   boolean find(int i)
   {
-     return listelements.hasValue(i);
+     if( this.listelements.size()==0) return false;
+     return this.listelements.hasValue(i);
   }
+  
   void list()
   {
      int i;
-     for(i=0;i<listelements.size();i++)
+     for(i=0;i<this.listelements.size();i++)
      {
-       println("Selection element "+i+" = "+listelements.get(i));
+       println("Selection element "+i+" = "+this.listelements.get(i));
      }
      println("Listing complete!");
   }
 
   void sortReverse()
   {
-    listelements.sortReverse();
+    if( this.listelements.size()> 0)
+       this.listelements.sortReverse();
   }
   
 // Delete selection s from the list.
@@ -52,13 +56,13 @@ class   SelectionList
      int i;
      int q;
 
-     for(i=0;i<listelements.size();i++)
+     for(i=0;i<this.listelements.size();i++)
      {
-       q = listelements.get(i);
+       q = this.listelements.get(i);
        if( q==s) 
        {
-           listelements.remove(i);
-           if( listelements.size()==0) 
+           this.listelements.remove(i);
+           if( this.listelements.size()==0) 
            {
               selected=-1;
               return;
@@ -69,17 +73,22 @@ class   SelectionList
   
    void clear()
    {
-      listelements.clear();
+      if( this.listelements.size()>0)
+         this.listelements.clear();
       selected=-1;
    }  
    
    int size()
    {
-     return listelements.size();
+     if( this.listelements.size() > 0)
+        return this.listelements.size();
+     return 0;
    }
    
    int get(int i)
    {
-     return listelements.get(i);
+     if( i>=0 && i < this.listelements.size())
+        return this.listelements.get(i);
+     return -1;
    }
 }
