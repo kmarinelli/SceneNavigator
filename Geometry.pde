@@ -1,4 +1,3 @@
-
 boolean solveQuadratic(float a, float b, float c, float x0, float x1) 
 { 
    float t;
@@ -23,7 +22,7 @@ boolean solveQuadratic(float a, float b, float c, float x0, float x1)
    return true; 
 }
 
-float intersect( PVector rayorig, PVector raydir, 
+float BallRayIntersect( PVector rayorig, PVector raydir, 
                  PVector center,float radius2) 
 {
    float t0, t1; // solutions for t if the ray intersects 

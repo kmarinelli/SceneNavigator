@@ -18,9 +18,13 @@ void ProcessMouseInput()
    
 }
 
+PVector mousePressedPoint;
+
 void mousePressed()
 {
      println("Mouse was pressed!\n");
+
+     mousePressedPoint=Points.FindIntersection();  // If the mouse is pressed on a vertex, save the vertex pointer.
 
      // Save the location of the down press.
      mouseMillis = millis();
@@ -32,6 +36,7 @@ void mousePressed()
 
 void mouseReleased() 
 {
+  println("Mouse was released!");
   if( millis()-mouseMillis<250) // mouse click happened.
   {
     if( mouseButton == LEFT )
@@ -47,25 +52,19 @@ void mouseReleased()
       println("Right mouse was pressed!");
       selected = Points.FindIntersection();
       println("Selection is "+selected);
-      if( selected == -1)
+      if( selected == null)
       {
-          if( selections.size()>0)
+             println("Clearing selections!");
              selections.clear();
       }
       else
       { 
-           int tmp=selected;
+           PVector tmp=selected;
           
-           if( !keyPressed || (keyPressed&&keyCode != SHIFT))
+           if( !keyPressed || (keyPressed&&keyCode != SHIFT))  // Clear the selection list if this is not a shift-click to append the selection to the list.
            {
               println("Clearing Selections list!");
-              if( selections.size()>0)
-              {
-                 println("clearing: List size = "+selections.size());           
-                 selections.clear();
-              }
-              else
-                 println("Selections clear is not necessary!");
+              selections.clear();
            }
               
            println("Adding selection "+tmp+" to list");
@@ -77,6 +76,17 @@ void mouseReleased()
   }
 }
 
+void mouseDragged() 
+{
+   println("Mouse was dragged!");
+   
+   if( mousePressedPoint!=null)  // The mouse was dragged while pointing at a vertex.
+   {
+     mousePressedPoint.set(mouseUV.x,mouseUV.y,mouseUV.z); // Update the vertex location in the UV plane to the new mouse location.
+   }
+   
+}
+
 void TrackMouse()
 {
 //  Track the mouse pointer in UV coordinates.
@@ -86,8 +96,8 @@ void TrackMouse()
   
   // Convert 2D window mouse position to 3D U,V world coordinates
   
-  x=2*((float)mouseX-(float)width/2)/width*W; 
-  y= 2*(-((float)mouseY-(float)height/2))/height*H;
+  x=2*((float)mouseX-(float)width/2)/width*Width; 
+  y= 2*(-((float)mouseY-(float)height/2))/height*Height;
 
   mouseUV.x=at.x-U.x*x+V.x*y;
   mouseUV.y=at.y-U.y*x+V.y*y;

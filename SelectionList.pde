@@ -1,94 +1,109 @@
 class   SelectionList
 {
-  IntList listelements;
+  VertexList elements;
   
   SelectionList()
   { 
-     this.listelements = new IntList();  // Create an empty ArrayList
+     elements = new VertexList();  // Create an empty VertexList
   }
 
 //  Add a new  selection to the list.
 //  If the selection already exists in the list, remove it from the list.
-  void add(int i)
+  void add(PVector p)
   {
-    if( i < 0) return;
-    if( this.listelements.hasValue(i) == false)
+    if( p == null) return;
+    if( !find(p,true))
     {
-       println( "Selection is not listed! Adding selection "+i);
-       this.listelements.append(i);
+       println( "Selection is not listed! Adding selection "+p.x+" "+p.y+" "+p.z);
+       //elements.add(p.x,p.y,p.z);
+       elements.addVertex(p);
        println("Completed adding point, now listing!");
 
      }
     else
     {
       println("removing Selection!");
-      this.delete(i);
-      if( this.listelements.size()==0) selected=-1;
+      elements.delete(p);
+      if( elements.Head==null) selected=null;
     }
-    this.list();
+    list();
   }
   
-  boolean find(int i)
+  boolean find(PVector p,boolean debug)
   {
-     if( this.listelements.size()==0) return false;
-     return this.listelements.hasValue(i);
+     VertexNode N;
+ 
+     if( p == null) return false;
+    
+     N=elements.Head;
+     if( N==null) return false;
+     
+     while( N !=null)
+     {
+       if( debug)
+       {
+          println("Comparing:");
+          println("  "+N.P.x+" "+N.P.y+" "+N.P.z);
+          println("  "+p.x+" "+p.y+" "+p.z);
+       }
+       if( N.equal(p)) 
+       {  
+          if( debug) println("Found match!");
+          return true;
+       }
+       N=N.Next;
+     }
+     return false;
   }
   
   void list()
   {
-     int i;
-     for(i=0;i<this.listelements.size();i++)
+     VertexNode N;
+     
+     println("Size = "+elements.count);
+     N=elements.Head;
+     while( N!=null)
      {
-       println("Selection element "+i+" = "+this.listelements.get(i));
+       N.list();
+       N=N.Next;
      }
      println("Listing complete!");
   }
 
-  void sortReverse()
-  {
-    if( this.listelements.size()> 0)
-       this.listelements.sortReverse();
-  }
-  
-// Delete selection s from the list.
-  void delete( int s)
-  {
-     int i;
-     int q;
-
-     for(i=0;i<this.listelements.size();i++)
-     {
-       q = this.listelements.get(i);
-       if( q==s) 
-       {
-           this.listelements.remove(i);
-           if( this.listelements.size()==0) 
-           {
-              selected=-1;
-              return;
-           }
-       }
-     }
-  }
   
    void clear()
    {
-      if( this.listelements.size()>0)
-         this.listelements.clear();
-      selected=-1;
+       VertexNode N;
+       VertexNode tmp;
+       
+       println("In SelectionList.clear()");
+       if( elements==null)
+       {
+         println("The SelectionList is empty! elements==null");
+         return;
+       }
+       println("Continuing: elements is not null!");
+       N=elements.Head;
+       while(N != null)
+       {
+         print("Node =");
+         N.list();
+         tmp=N;
+         N=N.Next;
+         tmp.P=null;
+         tmp.Next=null;
+         tmp.Prev=null;
+       }
+       elements.Head=null;
+       elements.Tail=null;
+       elements.count = 0;
    }  
    
    int size()
-   {
-     if( this.listelements.size() > 0)
-        return this.listelements.size();
-     return 0;
+   { 
+     println("In SelectionList.size");
+     println("Size = "+elements.count);
+     return elements.count;
    }
    
-   int get(int i)
-   {
-     if( i>=0 && i < this.listelements.size())
-        return this.listelements.get(i);
-     return -1;
-   }
 }

@@ -61,25 +61,27 @@ void ProcessKeyInput()
      }
      if( key=='w')  // move viewing frustrum forward.
      {
-           eye.x =  eye.x+Vdir.x*0.1;
-           eye.y =  eye.y+Vdir.y*0.1;
-           eye.z =  eye.z+Vdir.z*0.1;
-           at.x  =  at.x +Vdir.x*0.1;
-           at.y  =  at.y +Vdir.y*0.1;
-           at.z  =  at.z +Vdir.z*0.1;
+           eye.x =  eye.x+W.x*0.1;
+           eye.y =  eye.y+W.y*0.1;
+           eye.z =  eye.z+W.z*0.1;
+           at.x  =  at.x +W.x*0.1;
+           at.y  =  at.y +W.y*0.1;
+           at.z  =  at.z +W.z*0.1;
      }
      if(key== 's') // move viewing frustrum backwards.
      {
-           eye.x =  eye.x-Vdir.x*0.1;
-           eye.y =  eye.y-Vdir.y*0.1;
-           eye.z =  eye.z-Vdir.z*0.1;
-           at.x  =  at.x -Vdir.x*0.1;
-           at.y  =  at.y -Vdir.y*0.1;
-           at.z  =  at.z -Vdir.z*0.1;
+           eye.x =  eye.x-W.x*0.1;
+           eye.y =  eye.y-W.y*0.1;
+           eye.z =  eye.z-W.z*0.1;
+           at.x  =  at.x -W.x*0.1;
+           at.y  =  at.y -W.y*0.1;
+           at.z  =  at.z -W.z*0.1;
      }
      if( key == DELETE)
      {
-        Points.deleteSelected();
+        println("Deleting selected points!");
+        trianglelist.deleteTrianglesWithSelectedVertices();
+        Points.deleteSelectedVertices();
         selections.clear();
      }
 
@@ -95,17 +97,16 @@ void keyReleased()
             DRAWEYEMODE= !DRAWEYEMODE;
             break;
          case 't':
+           println("Creating a triangle!");
            if(selections.size()==3)
            {
              PVector p1,p2,p3;
              Triangle T;
-             int i;
-             i = selections.get(0);
-             p1 = Points.get(i);
-             i = selections.get(1);
-             p2 = Points.get(i);
-             i = selections.get(2);
-             p3 = Points.get(i);
+             
+             println("3 vertices selected: Adding triangle!");
+             p1= (selections.elements.Head).P;
+             p2 = selections.elements.Head.Next.P;
+             p3 = selections.elements.Head.Next.Next.P;
              trianglelist.add(p1,p2,p3);       
            }
            break;
